@@ -4,7 +4,7 @@ from datetime import datetime
 
 from langchain.tools import tool
 
-from retriever import load_carlist
+from retriever import CAR_CATEGORY_BY_MODEL, load_carlist, search_vehicles
 
 FREE_MINUTES_BY_TYPE = {
     "임직원": 240,  # 4시간
@@ -63,6 +63,23 @@ def find_by_department(department: str) -> str:
     if not matched:
         return f"{department} 소속 차량 기록이 없습니다."
     return str(matched)
+
+
+@tool
+def search_vehicles_semantic(query: str) -> str:
+    """전기차, SUV, 고급 세단처럼 정확한 필드값이 아니라 자연어 표현으로 차량을 찾을 때 쓴다.
+    차량번호·부서명처럼 정확한 값을 아는 조회에는 이 도구를 쓰지 말고 다른 도구를 쓴다.
+    이 도구가 실제로 찾아온 차량만 답하고, 찾아오지 않은 차량을 지어내지 않는다."""
+    results = search_vehicles(query, k=5)
+    if not results:
+        return "의미상 비슷한 차량을 찾지 못했습니다."
+
+    annotated = []
+    for r in results:
+        record = _public_record(r)
+        record["car_category"] = CAR_CATEGORY_BY_MODEL.get(r.get("car_model"), "미분류")
+        annotated.append(record)
+    return str(annotated)
 
 
 @tool

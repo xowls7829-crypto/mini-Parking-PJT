@@ -14,6 +14,7 @@ from tools import (
     find_by_department,
     get_available_spaces,
     get_recent_vehicles,
+    search_vehicles_semantic,
     calculate_fee,
     list_all_vehicles_admin,
 )
@@ -31,6 +32,8 @@ INFO_SYSTEM_PROMPT = """당신은 주차장 조회 담당 에이전트입니다.
 - 차단기 등 실제 설비를 조작하는 답변은 하지 말고, 조회 결과만 안내하세요.
 - 차량번호와 부서 외의 개인정보는 답변에 담지 마세요.
 - 방문객 차량은 부서 대신 방문 업체명(company)이 있으니, 방문객 조회 시 부서 자리에 업체명을 보여주세요.
+- 전기차, SUV, 고급 세단처럼 정확한 필드값이 아닌 자연어 표현으로 차량을 찾는 질문은
+  search_vehicles_semantic을 쓰세요. 이 도구가 찾아온 차량만 답하고, 찾아오지 않은 차량은 지어내지 마세요.
 - 조회 결과가 여러 건이면 문장으로 나열하지 말고 마크다운 표로 정리해서 보여주세요.
 """
 
@@ -54,7 +57,9 @@ ARCHITECTURE_DESCRIPTION = """이 시스템(주차장 담당자 Agent)은 langgr
 
 - 감독자(supervisor): 사용자 질문을 보고 아래 하위 에이전트 중 하나 이상에게 위임하고 답을 합칩니다.
 - parking_info_agent (조회): find_by_vehicle_number, find_by_department, get_available_spaces,
-  get_recent_vehicles 네 개 도구로 차량 입출입·부서 현황·잔여 대수·최근 입차 차량을 조회합니다.
+  get_recent_vehicles 네 개 도구로 차량 입출입·부서 현황·잔여 대수·최근 입차 차량을 조회하고,
+  search_vehicles_semantic 도구(RAG: Bedrock 임베딩 + 인메모리 벡터 검색)로 전기차/SUV 같은
+  자연어 표현의 차량도 찾습니다.
 - fee_agent (요금): calculate_fee 도구로 정기권/방문객/임직원 구분과 할인 여부에 따라 요금을 계산합니다.
   할인 사유는 도구 응답 자체에 담기지 않아 구조적으로 노출되지 않습니다.
 - admin_agent (관리자 전용): list_all_vehicles_admin 도구로 차주 이름을 포함한 등록 차량 명단을 조회하며,
@@ -72,7 +77,13 @@ def describe_architecture() -> str:
 
 parking_info_agent = create_agent(
     model,
-    tools=[find_by_vehicle_number, find_by_department, get_available_spaces, get_recent_vehicles],
+    tools=[
+        find_by_vehicle_number,
+        find_by_department,
+        get_available_spaces,
+        get_recent_vehicles,
+        search_vehicles_semantic,
+    ],
     system_prompt=INFO_SYSTEM_PROMPT,
     name="parking_info_agent",
 )
