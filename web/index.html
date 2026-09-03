@@ -156,7 +156,11 @@ form.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question }),
     });
-    if (!res.ok) throw new Error('서버 오류: ' + res.status);
+    if (!res.ok) {
+      // FastAPI의 HTTPException은 {"detail": "..."} 형태로 온다. 있으면 그 메시지를, 없으면 상태코드만 보여준다.
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.detail || ('서버 오류: ' + res.status));
+    }
     const data = await res.json();
     renderAgentMessage(pending, data.answer);
     pending.classList.remove('pending');
