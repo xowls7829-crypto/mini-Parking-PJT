@@ -34,7 +34,11 @@ def run_one(question: str) -> tuple[str, list[str]]:
 
 
 def evaluate_row(row: dict) -> dict:
-    """문항 하나를 실행하고 채점 결과를 반환한다."""
+    """문항 하나를 실행하고 채점 결과를 반환한다.
+    자동 채점은 두 가지뿐이다: ① expected_tools 에 적힌 도구를 실제로 불렀는지,
+    ② forbidden 에 적힌 문구가 답변에 그대로 들어있는지(문자열 포함 검사라 오탐이 날 수 있음 —
+    거절 답변이 금지어 자체를 되풀이하면 실제로는 통과인데도 FAIL로 잡힌다).
+    expected_traits 는 자동으로 맞는지 판단하기 어려워서 채점에는 안 쓰고 리포트에만 남겨 사람이 본다."""
     question = row["question"]
     expected_tools = split_field(row.get("expected_tools", ""))
     forbidden = split_field(row.get("forbidden", ""))

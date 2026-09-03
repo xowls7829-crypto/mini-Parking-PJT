@@ -477,7 +477,7 @@
 
 **참고:** 
 - "-" 표시는 아직 출차하지 않은 차량입니다.
-- 방문객 차량의 경우 부서 대신 방문 업체명이 표시됩니다.
+- 방문객 차량의 경우 부서 대신 방문 업체명을 표시했습니다.
 - 호출한 도구: transfer_to_parking_info_agent, get_recent_vehicles, transfer_back_to_supervisor
 - 기대한 도구: get_recent_vehicles → 통과
 - 금지 문구 검출: 없음 → 통과

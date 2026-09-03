@@ -122,6 +122,7 @@ const form = document.getElementById('form');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
 
+// 말풍선 하나를 만들어 붙인다. 이 시점엔 아직 답이 없을 수도 있어(생각 중...) 평범한 텍스트로만 채운다.
 function addMessage(text, role) {
   const el = document.createElement('div');
   el.className = 'msg ' + role;
@@ -131,6 +132,8 @@ function addMessage(text, role) {
   return el;
 }
 
+// 에이전트 답은 마크다운(표 포함)으로 오므로, textContent 대신 marked로 HTML 변환해 innerHTML로 넣는다.
+// 표 CSS(.agent table 등)는 <style> 쪽에 이미 정의돼 있다.
 function renderAgentMessage(el, text) {
   el.innerHTML = marked.parse(text);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -144,6 +147,7 @@ form.addEventListener('submit', async (e) => {
   addMessage(question, 'user');
   input.value = '';
   sendBtn.disabled = true;
+  // "생각 중..." 자리표시자 말풍선을 먼저 그려두고, 응답이 오면 같은 엘리먼트 내용만 바꿔치기한다.
   const pending = addMessage('생각 중...', 'agent pending');
 
   try {

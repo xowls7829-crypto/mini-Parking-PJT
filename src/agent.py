@@ -19,12 +19,15 @@ from tools import (
     list_all_vehicles_admin,
 )
 
+# tools.py -> retriever.py 임포트 체인이 이 파일보다 먼저 실행될 수 있어 retriever.py 에서도
+# load_dotenv() 를 한 번 더 호출한다. 여기서는 모델 생성 전에 자격증명을 확실히 준비해두는 용도.
 load_dotenv()
 
 model = ChatBedrockConverse(
     model=os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0"),
+    # AWS 표준 변수명은 AWS_DEFAULT_REGION 이지만 .env 작성 실수를 대비해 AWS_REGION 도 먼저 확인한다.
     region_name=os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
-    temperature=0,
+    temperature=0,  # 요금 계산·가드레일처럼 매번 같은 답이 나와야 하는 용도라 온도는 0으로 고정
 )
 
 INFO_SYSTEM_PROMPT = """당신은 주차장 조회 담당 에이전트입니다.
@@ -75,6 +78,9 @@ def describe_architecture() -> str:
     를 설명한다. "이 에이전트는 어떻게 만들어졌어?", "구조가 어떻게 돼?" 같은 질문에는 이 도구를 쓴다."""
     return ARCHITECTURE_DESCRIPTION
 
+
+# 하위 에이전트 3개. 도구 접근 권한을 역할별로 나눠서, 조회 에이전트는 애초에 차주 이름을
+# 반환하는 도구 자체를 갖고 있지 않게(admin_agent 에만 부여) 만든 것이 핵심 가드레일이다.
 parking_info_agent = create_agent(
     model,
     tools=[
@@ -118,10 +124,13 @@ SUPERVISOR_PROMPT = """당신은 주차장 안내 에이전트의 감독자입�
   describe_architecture 도구를 직접 써서 답하세요.
 """
 
+# output_mode="full_history" 로 둬야 하위 에이전트가 실제로 호출한 도구(find_by_vehicle_number 등)까지
+# 최종 messages 에 남는다. 기본값(last_message)은 핸드오프 요약만 남기고 실제 도구 호출 흔적을 지워버려서
+# run_eval.py 의 expected_tools 검증과 app.py 의 trace/contexts 추출이 불가능해진다.
 agent = create_supervisor(
     agents=[parking_info_agent, fee_agent, admin_agent],
     model=model,
-    tools=[describe_architecture],
+    tools=[describe_architecture],  # 감독자 전용 도구: 하위 에이전트로 위임하지 않고 감독자가 직접 호출
     prompt=SUPERVISOR_PROMPT,
     output_mode="full_history",
 ).compile()
@@ -143,6 +152,8 @@ def final_answer(messages) -> str:
     자동 생성 문구일 수 있어, tool_calls 없이 실제 텍스트를 담은 마지막 AIMessage를 거꾸로 찾는다.
     감독자가 하위 에이전트의 표 답변을 표 없이 요약해버린 경우엔, 표가 담긴 하위 에이전트의
     답을 대신 쓴다."""
+    # 뒤에서부터 훑으면서, 감독자 자신이 쓴 마지막 텍스트와 하위 에이전트가 쓴 마지막 텍스트를
+    # 각각 하나씩만 챙긴다. tool_calls 가 있는 메시지(도구 호출/핸드오프 지시)는 답이 아니므로 건너뛴다.
     supervisor_text = ""
     sub_agent_text = ""
     for m in reversed(messages):
@@ -158,6 +169,7 @@ def final_answer(messages) -> str:
         if supervisor_text and sub_agent_text:
             break
 
+    # 표(|)가 있는 하위 에이전트 답을 감독자가 표 없이 요약해버린 경우, 요약 대신 원래 표를 살린다.
     if sub_agent_text and "|" in sub_agent_text and "|" not in supervisor_text:
         return sub_agent_text
     return supervisor_text or sub_agent_text

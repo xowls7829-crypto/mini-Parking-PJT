@@ -35,12 +35,14 @@ def _fee_for_period(minutes: int, free_minutes: int) -> int:
     if minutes <= free_minutes:
         return 0
     billable = minutes - free_minutes
-    units = -(-billable // UNIT_MINUTES)
+    units = -(-billable // UNIT_MINUTES)  # 파이썬에 ceil 나눗셈이 없어 음수 트릭으로 올림 처리 (예: 1분 초과도 30분 단위 과금)
     return units * UNIT_FEE
 
 
 def _calc_fee(total_minutes: int, free_minutes: int) -> int:
     """24시간 단위로 반복 적용해 총 요금을 계산한다."""
+    # 24시간(=DAY_MINUTES)이 지나면 무료 시간과 요율이 그대로 다시 적용되는 정책이라,
+    # 총 주차 시간을 "꽉 찬 하루" 단위와 "나머지" 로 나눠 각각 요금을 매긴 뒤 더한다.
     full_days, remainder = divmod(total_minutes, DAY_MINUTES)
     return full_days * _fee_for_period(DAY_MINUTES, free_minutes) + _fee_for_period(remainder, free_minutes)
 
@@ -70,10 +72,12 @@ def search_vehicles_semantic(query: str) -> str:
     """전기차, SUV, 고급 세단처럼 정확한 필드값이 아니라 자연어 표현으로 차량을 찾을 때 쓴다.
     차량번호·부서명처럼 정확한 값을 아는 조회에는 이 도구를 쓰지 말고 다른 도구를 쓴다.
     이 도구가 실제로 찾아온 차량만 답하고, 찾아오지 않은 차량을 지어내지 않는다."""
-    results = search_vehicles(query, k=5)
+    results = search_vehicles(query, k=5)  # 벡터 검색 top-5, 정확 일치가 아니라 의미상 가까운 후보들
     if not results:
         return "의미상 비슷한 차량을 찾지 못했습니다."
 
+    # car_model("EV6")만으로는 "전기차"/"SUV" 같은 질의와 근거가 약해서, 카테고리를 여기서도
+    # 명시적으로 붙여 답변 LLM과 이후 평가(faithfulness) 둘 다 실제 컨텍스트에서 그 단어를 보게 한다.
     annotated = []
     for r in results:
         record = _public_record(r)
@@ -117,6 +121,7 @@ def calculate_fee(vehicle_number: str) -> str:
         return f"{vehicle_number}는 정기권 차량으로 별도 주차 요금이 없습니다."
 
     entry = datetime.fromisoformat(record["entry_time"])
+    # 아직 출차하지 않은 차량은 "지금까지 얼마나 주차했는지"를 현재 시각 기준으로 계산해 예상 요금을 보여준다.
     exit_ = datetime.fromisoformat(record["exit_time"]) if record["exit_time"] else datetime.now()
     minutes = max(0, int((exit_ - entry).total_seconds() // 60))
 
@@ -127,6 +132,9 @@ def calculate_fee(vehicle_number: str) -> str:
     if original_fee == 0:
         return f"{vehicle_number} 주차 요금: 0원 (무료회차 적용, {status})"
 
+    # 할인 적용 차량(장애인/국가유공자 등)은 원금의 절반만 청구한다. 다만 discount_type 값 자체는
+    # 반환 문자열 어디에도 넣지 않는다 — 할인 "사유"를 답변에 노출하지 않는 정책을 프롬프트가 아니라
+    # 여기 코드 단에서 원천 차단하는 것이 목적이다(프롬프트만 믿으면 우회될 수 있음).
     if record.get("discount_type"):
         final_fee = original_fee // 2
         return (
@@ -144,7 +152,7 @@ def list_all_vehicles_admin(vehicle_type: str | None = None) -> str:
     일반 조회 도구에서는 차주 이름을 절대 포함하지 않는다."""
     data = load_carlist()
     records = data["records"]
-    if vehicle_type:
+    if vehicle_type:  # "정기권"/"방문객"/"임직원" 지정 시 그 구분만 남기고, 안 주면 전체를 그대로 쓴다
         records = [r for r in records if r.get("vehicle_type") == vehicle_type]
         if not records:
             return f"'{vehicle_type}' 구분의 등록 차량이 없습니다."

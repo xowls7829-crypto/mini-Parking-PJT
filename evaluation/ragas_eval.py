@@ -26,7 +26,9 @@ METRIC_NAMES = ["faithfulness", "answer_relevancy", "context_utilization"]
 
 
 def collect_contexts(messages) -> list[str]:
-    """ToolMessage 중 핸드오프 안내가 아닌 실제 도구 결과만 컨텍스트로 쓴다."""
+    """ToolMessage 중 핸드오프 안내("Successfully transferred...")가 아닌 실제 도구 결과만 컨텍스트로 쓴다.
+    RAGAS 지표는 이 contexts 를 "근거 자료"로 보고 답변이 여기서 벗어났는지(faithfulness) 등을 채점하므로,
+    핸드오프 문구까지 섞으면 아무 의미 없는 문장이 근거로 잡혀 채점이 왜곡된다."""
     contexts = []
     for m in messages:
         if isinstance(m, ToolMessage):
@@ -47,6 +49,8 @@ def run_samples():
         result = agent.invoke({"messages": [{"role": "user", "content": row["question"]}]})
         messages = result["messages"]
         answer = final_answer(messages)
+        # 가드레일 거절처럼 도구를 아예 안 부른 경우 contexts 가 비게 되는데, RAGAS 샘플은 빈 리스트를
+        # 못 받으므로 답변 자체를 컨텍스트로 넣는다(그만큼 그 케이스의 지표는 참고용일 뿐임을 report에 명시).
         contexts = collect_contexts(messages) or [answer]
 
         samples.append(SingleTurnSample(user_input=row["question"], response=answer, retrieved_contexts=contexts))
@@ -97,6 +101,8 @@ def main():
         region_name=os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
     )
 
+    # 판정 LLM/임베딩도 앱이 쓰는 것과 같은 Bedrock 모델을 재사용한다 — 별도 계정/모델을 준비할
+    # 필요 없이 지금 가능한 자원 안에서 "자체 평가"가 되도록 한 것.
     result = evaluate(
         dataset,
         metrics=[Faithfulness(), answer_relevancy, ContextUtilization()],

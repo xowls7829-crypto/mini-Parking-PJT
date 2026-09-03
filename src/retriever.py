@@ -64,7 +64,9 @@ def _record_to_text(record: dict) -> str:
 
 
 def _build_vector_store() -> InMemoryVectorStore:
-    """더미 데이터를 문서화해서 벡터 스토어를 만든다."""
+    """더미 데이터를 문서화해서 벡터 스토어를 만든다. 레코드 1건 = 문서(청크) 1개.
+    메타데이터에 vehicle_number 만 담아두고, 실제 필드값은 검색 후 load_carlist()로 다시 가져온다
+    (임베딩 텍스트가 아니라 원본 레코드를 답변에 써야 discount_type 숨김 등 기존 필터링 로직을 그대로 재사용 가능)."""
     data = load_carlist()
     docs = [
         Document(page_content=_record_to_text(r), metadata={"vehicle_number": r["vehicle_number"]})
@@ -76,10 +78,10 @@ def _build_vector_store() -> InMemoryVectorStore:
 def search_vehicles(query: str, k: int = 5) -> list[dict]:
     """자연어 질의와 의미상 가까운 차량 레코드를 최대 k건 찾는다 (전기차/SUV처럼 필드에 없는 표현용)."""
     global _vector_store
-    if _vector_store is None:
+    if _vector_store is None:  # 프로세스당 한 번만 임베딩하고 재사용 (요청마다 새로 만들면 느리고 비용도 든다)
         _vector_store = _build_vector_store()
 
-    hits = _vector_store.similarity_search(query, k=k)
+    hits = _vector_store.similarity_search(query, k=k)  # 코사인 유사도 기준 top-k, 정확도가 아니라 근사 매칭
     plates = [doc.metadata["vehicle_number"] for doc in hits]
 
     data = load_carlist()
