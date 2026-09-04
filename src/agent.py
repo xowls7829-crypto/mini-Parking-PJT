@@ -1,6 +1,7 @@
 """주차장 담당자 Agent: langgraph-supervisor로 조회/요금/관리자 하위 에이전트를 위임하는 멀티 에이전트 그래프."""
 
 import os
+import re
 
 from dotenv import load_dotenv
 from langchain.agents import create_agent
@@ -142,6 +143,15 @@ agent = create_supervisor(
 ).compile()
 
 
+# 감독자↔하위 에이전트 핸드오프가 여러 번 얽히는 드문 경우, langgraph-supervisor 가 자동으로
+# 붙이는 이 문구들이 실제 답변 텍스트 사이에 그대로 섞여 나올 때가 있다(재현 빈도는 낮지만 실제로
+# 목격함). 사용자에게 보이기 전에 한 번 걸러낸다.
+_HANDOFF_ARTIFACT_RE = re.compile(
+    r"^\s*(Transferring back to supervisor|Successfully transferred to \S+)\s*$",
+    re.MULTILINE,
+)
+
+
 def _extract_text(content) -> str:
     """AIMessage.content 가 문자열이든 블록 리스트든 순수 텍스트만 뽑는다."""
     if isinstance(content, str):
@@ -151,6 +161,12 @@ def _extract_text(content) -> str:
         if isinstance(block, dict) and block.get("type") == "text":
             parts.append(block.get("text", ""))
     return "".join(parts)
+
+
+def _strip_handoff_artifacts(text: str) -> str:
+    """답변에 새어 들어온 핸드오프 문구를 지우고, 그 자리에 남는 빈 줄을 정리한다."""
+    cleaned = _HANDOFF_ARTIFACT_RE.sub("", text)
+    return re.sub(r"\n{3,}", "\n\n", cleaned).strip()
 
 
 def final_answer(messages) -> str:
@@ -183,8 +199,8 @@ def final_answer(messages) -> str:
         ("|" in sub_agent_text and "|" not in supervisor_text)
         or len(supervisor_text) < len(sub_agent_text) * 0.5
     ):
-        return sub_agent_text
-    return supervisor_text or sub_agent_text
+        return _strip_handoff_artifacts(sub_agent_text)
+    return _strip_handoff_artifacts(supervisor_text or sub_agent_text)
 
 
 if __name__ == "__main__":

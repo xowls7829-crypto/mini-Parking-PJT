@@ -107,6 +107,22 @@
     border-bottom: 1px solid #e5e5e5;
     font-weight: 600;
   }
+  header .spacer {
+    flex: 1;
+  }
+  #pdfBtn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #444;
+    cursor: pointer;
+  }
+  #pdfBtn:hover {
+    background: #f0f0f2;
+  }
   #messages {
     flex: 1;
     overflow-y: auto;
@@ -191,6 +207,16 @@
     #app { flex-direction: column; height: auto; min-height: 100vh; }
     #menu { width: auto; max-height: 40vh; border-right: none; border-bottom: 1px solid #e5e5e5; }
   }
+
+  /* "PDF로 저장" 버튼은 브라우저의 인쇄 대화상자를 그대로 이용한다(대상을 "PDF로 저장"으로 고르면
+     다운로드가 됨). 인쇄될 때는 메뉴·입력창처럼 대화 내용이 아닌 것들은 다 지우고, 스크롤로 잘려
+     있던 대화 전체가 여러 페이지로 자연스럽게 이어지도록 높이 제약을 푼다. */
+  @media print {
+    body { background: #fff; }
+    #menu, #menuShowBtn, #pdfBtn, form { display: none !important; }
+    #app, #chat, #messages { height: auto !important; overflow: visible !important; }
+    .msg { break-inside: avoid; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
@@ -233,6 +259,8 @@
     <header>
       <button id="menuShowBtn" type="button" title="메뉴 펼치기">☰</button>
       주차장 담당자 Agent
+      <span class="spacer"></span>
+      <button id="pdfBtn" type="button" title="지금까지의 대화를 PDF로 저장">PDF로 저장</button>
     </header>
     <div id="messages"></div>
     <form id="form">
@@ -251,6 +279,12 @@ const sendBtn = document.getElementById('send');
 const menu = document.getElementById('menu');
 const menuToggle = document.getElementById('menuToggle');
 const menuShowBtn = document.getElementById('menuShowBtn');
+const pdfBtn = document.getElementById('pdfBtn');
+
+// 별도 PDF 생성 라이브러리 없이, 브라우저 인쇄 기능을 그대로 이용한다. 인쇄 대화상자에서
+// 대상(프린터)을 "PDF로 저장"으로 고르면 그대로 다운로드된다. @media print 스타일이 메뉴/입력창을
+// 지우고 대화 내용만 페이지에 흐르도록 되어 있다(<style> 쪽 참고).
+pdfBtn.addEventListener('click', () => window.print());
 
 // 메뉴 접힘 상태는 이 브라우저에서만 기억하면 되는 사소한 취향이라 localStorage에 둔다.
 // 개인정보나 공유 데이터가 아니라서 못 읽어도(시크릿 모드 등) 그냥 펼친 채로 시작하면 그만이다.
