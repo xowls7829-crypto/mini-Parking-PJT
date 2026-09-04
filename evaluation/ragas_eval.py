@@ -1,42 +1,22 @@
 """test_queries.csv 중 대표 문항을 뽑아 RAGAS 지표(faithfulness/answer_relevancy/context_utilization)로 채점한다."""
 
 import csv
-import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "evaluation"))
 
 from agent import agent, final_answer  # noqa: E402
-from langchain_core.messages import ToolMessage  # noqa: E402
-from langchain_aws import BedrockEmbeddings, ChatBedrockConverse  # noqa: E402
-from ragas import EvaluationDataset, SingleTurnSample, evaluate  # noqa: E402
-from ragas.embeddings import LangchainEmbeddingsWrapper  # noqa: E402
-from ragas.llms import LangchainLLMWrapper  # noqa: E402
-from ragas.metrics import ContextUtilization, Faithfulness, answer_relevancy  # noqa: E402
+from ragas import SingleTurnSample  # noqa: E402
+from ragas_common import METRIC_NAMES, collect_contexts, make_judge, score  # noqa: E402
 
 QUERIES_PATH = ROOT / "evaluation" / "test_queries.csv"
 REPORT_PATH = ROOT / "evaluation" / "round1_report.md"
 
 # 카테고리별로 고르게 뽑은 대표 문항 (판정 LLM 호출 비용을 고려해 전체 25건 중 일부만 채점)
 SAMPLE_IDS = ["P1", "P2", "P7", "P8", "P11", "P15", "P16", "N1", "E3", "G1", "G3"]
-
-METRIC_NAMES = ["faithfulness", "answer_relevancy", "context_utilization"]
-
-
-def collect_contexts(messages) -> list[str]:
-    """ToolMessage 중 핸드오프 안내("Successfully transferred...")가 아닌 실제 도구 결과만 컨텍스트로 쓴다.
-    RAGAS 지표는 이 contexts 를 "근거 자료"로 보고 답변이 여기서 벗어났는지(faithfulness) 등을 채점하므로,
-    핸드오프 문구까지 섞으면 아무 의미 없는 문장이 근거로 잡혀 채점이 왜곡된다."""
-    contexts = []
-    for m in messages:
-        if isinstance(m, ToolMessage):
-            text = str(m.content)
-            if "transferred" in text.lower():
-                continue
-            contexts.append(text)
-    return contexts
 
 
 def run_samples():
@@ -89,28 +69,9 @@ def write_report(rows_used, scores_df):
 
 def main():
     samples, rows_used = run_samples()
-    dataset = EvaluationDataset(samples=samples)
+    llm, embeddings = make_judge()
+    scores_df = score(samples, llm, embeddings)
 
-    judge_llm = ChatBedrockConverse(
-        model=os.environ.get("BEDROCK_MODEL_ID"),
-        region_name=os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
-        temperature=0,
-    )
-    judge_embeddings = BedrockEmbeddings(
-        model_id=os.environ.get("BEDROCK_EMBED_MODEL_ID", "amazon.titan-embed-text-v2:0"),
-        region_name=os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
-    )
-
-    # 판정 LLM/임베딩도 앱이 쓰는 것과 같은 Bedrock 모델을 재사용한다 — 별도 계정/모델을 준비할
-    # 필요 없이 지금 가능한 자원 안에서 "자체 평가"가 되도록 한 것.
-    result = evaluate(
-        dataset,
-        metrics=[Faithfulness(), answer_relevancy, ContextUtilization()],
-        llm=LangchainLLMWrapper(judge_llm),
-        embeddings=LangchainEmbeddingsWrapper(judge_embeddings),
-    )
-
-    scores_df = result.to_pandas()
     write_report(rows_used, scores_df)
 
     print(scores_df[METRIC_NAMES])

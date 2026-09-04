@@ -41,6 +41,12 @@ def _admin_record(record: dict) -> dict:
     return {k: v for k, v in record.items() if k not in HIDDEN_FIELDS_ADMIN}
 
 
+def _find_vehicle(vehicle_number: str) -> dict | None:
+    """차량번호로 레코드 하나를 찾는다. 여러 도구(조회/요금/환불)가 똑같이 쓰는 조회라 여기 하나로 모았다."""
+    data = load_carlist()
+    return next((r for r in data["records"] if r["vehicle_number"] == vehicle_number), None)
+
+
 def _fee_for_period(minutes: int, free_minutes: int) -> int:
     """24시간을 넘지 않는 하나의 구간에 대한 요금. free_minutes 까지 무료, 이후 30분당 1000원(올림)."""
     if minutes <= free_minutes:
@@ -61,11 +67,10 @@ def _calc_fee(total_minutes: int, free_minutes: int) -> int:
 @tool
 def find_by_vehicle_number(vehicle_number: str) -> str:
     """차량 번호로 입출입 기록을 조회한다. 등록되지 않은 번호면 등록되지 않았다고만 답하고 추측하지 않는다."""
-    data = load_carlist()
-    for record in data["records"]:
-        if record["vehicle_number"] == vehicle_number:
-            return str(_public_record(record))
-    return f"{vehicle_number}는 등록되지 않은 차량입니다."
+    record = _find_vehicle(vehicle_number)
+    if record is None:
+        return f"{vehicle_number}는 등록되지 않은 차량입니다."
+    return str(_public_record(record))
 
 
 @tool
@@ -122,8 +127,7 @@ def calculate_fee(vehicle_number: str) -> str:
     24시간이 지나면 같은 기준으로 다시 적용된다. 무료 시간 내에 출차하면 0원(무료회차 적용)으로 안내한다.
     할인이 적용된 차량이면 원래 금액과 할인된 최종 금액을 함께 알려주지만, 할인 사유는 결과에 담지 않는다.
     등록되지 않은 차량이면 등록되지 않았다고만 답한다."""
-    data = load_carlist()
-    record = next((r for r in data["records"] if r["vehicle_number"] == vehicle_number), None)
+    record = _find_vehicle(vehicle_number)
     if record is None:
         return f"{vehicle_number}는 등록되지 않은 차량입니다."
 
@@ -167,8 +171,7 @@ def calculate_subscription_refund(vehicle_number: str) -> str:
     """정기권 차량의 중도 해지 환불액을 계산한다. 가입일로부터 30일 중 남은 일수만큼 일할 계산한다.
     정기권이 아닌 차량이거나 이미 30일이 지난 정기권이면 환불 대상이 아니라고 답한다.
     등록되지 않은 차량이면 등록되지 않았다고만 답한다."""
-    data = load_carlist()
-    record = next((r for r in data["records"] if r["vehicle_number"] == vehicle_number), None)
+    record = _find_vehicle(vehicle_number)
     if record is None:
         return f"{vehicle_number}는 등록되지 않은 차량입니다."
 
