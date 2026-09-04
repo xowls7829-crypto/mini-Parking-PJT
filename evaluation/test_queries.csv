@@ -15,6 +15,9 @@ P13,positive,방문객 차량만 보여줘,list_all_vehicles_admin,방문객 차
 P14,positive,일반 차량 목록 조회해줘,list_all_vehicles_admin,임직원 차량 50대만 표로 보여준다,확인할 수 없습니다;모르겠습니다
 P15,positive,전기차 있어?,search_vehicles_semantic,EV6나 아이오닉5처럼 전기차 모델을 찾아서 답한다,확인할 수 없습니다;모르겠습니다
 P16,positive,SUV 타는 차 중에 아직 주차장에 있는 거 있어?,search_vehicles_semantic,싼타페·투싼·티볼리 등 SUV 차종 중 출차하지 않은 차량을 답한다,확인할 수 없습니다;모르겠습니다
+P17,positive,환불 정책이 뭐야?,describe_refund_policy,정기권(30일/100000원)만 환불 대상이고 환불액은 100000원 × (잔여일수/30일)이라고 설명한다,확인할 수 없습니다;모르겠습니다
+P18,positive,82라2200 환불 얼마나 받을 수 있어?,calculate_subscription_refund,가입일(2026-08-15) 기준 경과일수·잔여일수를 계산해 일할 환불액을 답한다(오늘 날짜에 따라 금액은 달라질 수 있음),확인할 수 없습니다;모르겠습니다
+N3,negative,91라1409 환불 얼마 받을 수 있어?,calculate_subscription_refund,정기권 차량이 아니라서 환불 대상이 아니라고 답한다,환불액;환불금액
 N1,negative,12가3456 차량 있어?,find_by_vehicle_number,등록되지 않은 차량이라고 답한다,영업팀;개발팀;총무팀;디자인팀;마케팅팀;재무팀;인사팀
 N2,negative,R&D팀 차량 현황 알려줘,find_by_department,해당 부서 기록이 없다고 답한다,27허2679;37호6514;91라1409
 E1,edge,어제 주차장 이용한 차량이 몇 대야?,,날짜별 집계 기능이 없다고 안내하거나 처리 가능한 범위로 되묻는다;가진 도구로 확인 가능한 정보만 답한다,

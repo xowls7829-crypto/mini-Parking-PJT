@@ -13,11 +13,62 @@
   }
   #app {
     width: 100%;
-    max-width: 640px;
+    max-width: 960px;
     height: 100vh;
     display: flex;
-    flex-direction: column;
     background: #fff;
+  }
+
+  /* 왼쪽 메뉴: 이 에이전트한테 뭘 물어볼 수 있는지 카테고리별로 보여주는 목록 */
+  #menu {
+    width: 250px;
+    flex-shrink: 0;
+    border-right: 1px solid #e5e5e5;
+    overflow-y: auto;
+    background: #fafafa;
+  }
+  #menu h1 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .menu-group {
+    padding: 12px 8px;
+    border-bottom: 1px solid #ececec;
+  }
+  .menu-group h2 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0 8px 6px;
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #222;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: #e8edfc;
+  }
+
+  /* 오른쪽 채팅 패널 */
+  #chat {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
   }
   header {
     padding: 16px 20px;
@@ -103,17 +154,54 @@
     background: #aaa;
     cursor: default;
   }
+
+  @media (max-width: 640px) {
+    #app { flex-direction: column; height: auto; min-height: 100vh; }
+    #menu { width: auto; max-height: 40vh; border-right: none; border-bottom: 1px solid #e5e5e5; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
 <body>
 <div id="app">
-  <header>주차장 담당자 Agent</header>
-  <div id="messages"></div>
-  <form id="form">
-    <input id="input" type="text" placeholder="예: 지금 주차 가능한 자리가 몇 개야?" autocomplete="off" />
-    <button id="send" type="submit">전송</button>
-  </form>
+  <nav id="menu">
+    <h1>무엇을 물어볼 수 있나요?</h1>
+    <!-- 각 항목의 data-q 값을 클릭하면 그 질문을 그대로 물어본다. 카테고리는 감독자가 위임하는
+         하위 에이전트(조회/요금/관리자) 구성과 그대로 맞춰뒀다 -->
+    <div class="menu-group">
+      <h2>🚗 조회</h2>
+      <button class="menu-item" data-q="지금 주차 가능한 자리가 몇 개야?">지금 주차 가능한 자리 몇 개?</button>
+      <button class="menu-item" data-q="91라1409 차량 입출입 기록 알려줘">특정 차량 입출입 기록</button>
+      <button class="menu-item" data-q="영업팀 차량들 입출입 현황 보여줘">부서별 차량 현황</button>
+      <button class="menu-item" data-q="최근에 입차한 차량 5대 알려줘">최근 입차 차량</button>
+      <button class="menu-item" data-q="전기차 있어?">전기차/SUV 등 자연어로 찾기</button>
+    </div>
+    <div class="menu-group">
+      <h2>💰 요금 · 환불</h2>
+      <button class="menu-item" data-q="27허2679 주차 요금 얼마야?">주차 요금 계산</button>
+      <button class="menu-item" data-q="환불 정책이 뭐야?">정기권 환불 정책</button>
+      <button class="menu-item" data-q="82라2200 환불 얼마나 받을 수 있어?">정기권 환불 금액 계산</button>
+    </div>
+    <div class="menu-group">
+      <h2>📋 관리자 전용</h2>
+      <button class="menu-item" data-q="등록된 차량 전체 명단을 차주 이름까지 같이 보여줘">전체 차량 명단(차주 이름 포함)</button>
+      <button class="menu-item" data-q="정기권 차량 목록 조회해줘">정기권 차량만 보기</button>
+      <button class="menu-item" data-q="방문객 차량만 보여줘">방문객 차량만 보기</button>
+    </div>
+    <div class="menu-group">
+      <h2>ℹ️ 안내</h2>
+      <button class="menu-item" data-q="이 에이전트는 어떻게 만들어졌어? 구조를 설명해줘">이 에이전트 구조 설명</button>
+    </div>
+  </nav>
+
+  <div id="chat">
+    <header>주차장 담당자 Agent</header>
+    <div id="messages"></div>
+    <form id="form">
+      <input id="input" type="text" placeholder="예: 지금 주차 가능한 자리가 몇 개야?" autocomplete="off" />
+      <button id="send" type="submit">전송</button>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -121,6 +209,7 @@ const messagesEl = document.getElementById('messages');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
+const menu = document.getElementById('menu');
 
 // 말풍선 하나를 만들어 붙인다. 이 시점엔 아직 답이 없을 수도 있어(생각 중...) 평범한 텍스트로만 채운다.
 function addMessage(text, role) {
@@ -139,13 +228,9 @@ function renderAgentMessage(el, text) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const question = input.value.trim();
-  if (!question) return;
-
+// 입력창 제출과 메뉴 클릭이 똑같은 흐름을 타도록 질문 전송 로직을 함수 하나로 뺐다.
+async function sendQuestion(question) {
   addMessage(question, 'user');
-  input.value = '';
   sendBtn.disabled = true;
   // "생각 중..." 자리표시자 말풍선을 먼저 그려두고, 응답이 오면 같은 엘리먼트 내용만 바꿔치기한다.
   const pending = addMessage('생각 중...', 'agent pending');
@@ -171,6 +256,21 @@ form.addEventListener('submit', async (e) => {
     sendBtn.disabled = false;
     input.focus();
   }
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const question = input.value.trim();
+  if (!question) return;
+  input.value = '';
+  sendQuestion(question);
+});
+
+// 메뉴 항목 클릭 시 그 질문을 바로 물어본다(입력창에 채워 넣지 않고 즉시 전송).
+menu.addEventListener('click', (e) => {
+  const item = e.target.closest('.menu-item');
+  if (!item) return;
+  sendQuestion(item.dataset.q);
 });
 </script>
 </body>

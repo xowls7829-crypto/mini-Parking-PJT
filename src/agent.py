@@ -16,6 +16,8 @@ from tools import (
     get_recent_vehicles,
     search_vehicles_semantic,
     calculate_fee,
+    describe_refund_policy,
+    calculate_subscription_refund,
     list_all_vehicles_admin,
 )
 
@@ -43,6 +45,9 @@ INFO_SYSTEM_PROMPT = """당신은 주차장 조회 담당 에이전트입니다.
 FEE_SYSTEM_PROMPT = """당신은 주차 요금 계산 전담 에이전트입니다.
 정기권/방문객/임직원 여부에 따라 도구가 계산한 결과를 그대로 안내하세요.
 할인 여부와 사유는 도구 응답 자체에 담기지 않으니 지어내서 덧붙이지 마세요.
+- "환불 정책이 뭐야"처럼 정책 자체를 물으면 describe_refund_policy를 쓰세요.
+- 특정 정기권 차량의 환불 금액을 물으면 calculate_subscription_refund를 쓰세요.
+  정기권이 아닌 차량은 환불 대상이 아니라고 그대로 안내하고, 금액을 지어내지 마세요.
 """
 
 ADMIN_SYSTEM_PROMPT = """당신은 주차 관리 담당자 전용 에이전트입니다.
@@ -64,7 +69,8 @@ ARCHITECTURE_DESCRIPTION = """이 시스템(주차장 담당자 Agent)은 langgr
   search_vehicles_semantic 도구(RAG: Bedrock 임베딩 + 인메모리 벡터 검색)로 전기차/SUV 같은
   자연어 표현의 차량도 찾습니다.
 - fee_agent (요금): calculate_fee 도구로 정기권/방문객/임직원 구분과 할인 여부에 따라 요금을 계산합니다.
-  할인 사유는 도구 응답 자체에 담기지 않아 구조적으로 노출되지 않습니다.
+  할인 사유는 도구 응답 자체에 담기지 않아 구조적으로 노출되지 않습니다. describe_refund_policy,
+  calculate_subscription_refund 도구로 정기권 중도 해지 환불 정책 설명과 환불액 계산도 담당합니다.
 - admin_agent (관리자 전용): list_all_vehicles_admin 도구로 차주 이름을 포함한 등록 차량 명단을 조회하며,
   정기권/방문객/임직원 구분으로 필터링해서 볼 수도 있습니다. 일반 조회 도구는 차주 이름을 반환하지 않습니다.
 
@@ -96,7 +102,7 @@ parking_info_agent = create_agent(
 
 fee_agent = create_agent(
     model,
-    tools=[calculate_fee],
+    tools=[calculate_fee, describe_refund_policy, calculate_subscription_refund],
     system_prompt=FEE_SYSTEM_PROMPT,
     name="fee_agent",
 )
@@ -112,7 +118,7 @@ SUPERVISOR_PROMPT = """당신은 주차장 안내 에이전트의 감독자입�
 사용자 질문을 보고 적절한 하위 에이전트에게 위임해서 답을 구성하세요.
 - 등록 여부, 입출입 시각, 부서 현황, 잔여 대수, 최근 입차 차량, 주차 시간 비교처럼 신원과
   무관한 조회는 (특정 차량 한 대에 대한 질문이라도) parking_info_agent에게 위임하세요.
-- 주차 요금 관련 질문은 fee_agent에게 위임하세요.
+- 주차 요금 관련 질문(요금 계산, 환불 정책 설명, 정기권 환불 금액 계산 포함)은 fee_agent에게 위임하세요.
 - 차주 이름이 포함되는 차량 "목록/명단" 조회는 admin_agent에게 위임하세요. 전체 명단뿐 아니라
   "정기권 차량 목록", "방문객 차량만", "일반(임직원) 차량 목록"처럼 구분별로 묻는 경우도 포함됩니다.
 - 목록 조회가 아니라 특정 차량 한 대의 "차주 이름" 또는 "전화번호"만 콕 집어 요청하는 경우에만
@@ -169,8 +175,14 @@ def final_answer(messages) -> str:
         if supervisor_text and sub_agent_text:
             break
 
-    # 표(|)가 있는 하위 에이전트 답을 감독자가 표 없이 요약해버린 경우, 요약 대신 원래 표를 살린다.
-    if sub_agent_text and "|" in sub_agent_text and "|" not in supervisor_text:
+    # 감독자가 하위 에이전트의 상세 답변(표 포함, 또는 그냥 긴 설명)을 짧은 인사치레로
+    # 뭉개버리는 경우가 있어서, 두 가지 신호로 그걸 감지해 원래 답을 대신 쓴다:
+    # ① 하위 에이전트 답에는 표(|)가 있는데 감독자 답에는 없음
+    # ② 감독자 답이 하위 에이전트 답의 절반도 안 될 만큼 훨씬 짧음(내용이 빠졌다고 봄)
+    if sub_agent_text and (
+        ("|" in sub_agent_text and "|" not in supervisor_text)
+        or len(supervisor_text) < len(sub_agent_text) * 0.5
+    ):
         return sub_agent_text
     return supervisor_text or sub_agent_text
 

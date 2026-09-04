@@ -15,6 +15,17 @@ UNIT_MINUTES = 30
 UNIT_FEE = 1000
 DAY_MINUTES = 24 * 60
 
+# 정기권 환불 정책: 30일권, 남은 일수만큼 일할 계산해 환불한다.
+SUBSCRIPTION_DAYS = 30
+SUBSCRIPTION_FEE = 100000
+
+REFUND_POLICY_TEXT = (
+    f"정기권은 {SUBSCRIPTION_DAYS}일 단위 상품(요금 {SUBSCRIPTION_FEE:,}원)이며, 중도 해지 시 "
+    f"남은 일수만큼 일할 계산해 환불한다. 환불액 = {SUBSCRIPTION_FEE:,}원 × (잔여일수 / {SUBSCRIPTION_DAYS}일). "
+    "가입일로부터 30일이 지난 정기권은 환불 대상이 아니다. 정기권이 아닌 임직원·방문객 차량은 "
+    "환불 대상이 아니다(애초에 선결제 금액이 없음)."
+)
+
 
 HIDDEN_FIELDS_GENERAL = {"discount_type", "owner_name"}
 HIDDEN_FIELDS_ADMIN = {"discount_type"}
@@ -142,6 +153,40 @@ def calculate_fee(vehicle_number: str) -> str:
             f"최종 {final_fee}원입니다. ({status})"
         )
     return f"{vehicle_number} 주차 요금: {original_fee}원 ({status})"
+
+
+@tool
+def describe_refund_policy() -> str:
+    """정기권 환불 정책 자체를 설명한다. "환불 정책이 뭐야" 처럼 정책 내용을 물을 때 쓰고,
+    특정 차량의 환불 금액을 물으면 이 도구 대신 calculate_subscription_refund를 쓴다."""
+    return REFUND_POLICY_TEXT
+
+
+@tool
+def calculate_subscription_refund(vehicle_number: str) -> str:
+    """정기권 차량의 중도 해지 환불액을 계산한다. 가입일로부터 30일 중 남은 일수만큼 일할 계산한다.
+    정기권이 아닌 차량이거나 이미 30일이 지난 정기권이면 환불 대상이 아니라고 답한다.
+    등록되지 않은 차량이면 등록되지 않았다고만 답한다."""
+    data = load_carlist()
+    record = next((r for r in data["records"] if r["vehicle_number"] == vehicle_number), None)
+    if record is None:
+        return f"{vehicle_number}는 등록되지 않은 차량입니다."
+
+    if record.get("vehicle_type") != "정기권" or not record.get("subscription_start"):
+        return f"{vehicle_number}는 정기권 차량이 아니라 환불 대상이 아닙니다."
+
+    start = datetime.fromisoformat(record["subscription_start"]).date()
+    elapsed_days = (datetime.now().date() - start).days
+    remaining_days = max(0, SUBSCRIPTION_DAYS - elapsed_days)
+
+    if remaining_days == 0:
+        return f"{vehicle_number}는 가입 후 {SUBSCRIPTION_DAYS}일이 지나 환불 대상이 아닙니다."
+
+    refund = SUBSCRIPTION_FEE * remaining_days // SUBSCRIPTION_DAYS
+    return (
+        f"{vehicle_number} 정기권 환불액: {refund}원 "
+        f"(가입 {elapsed_days}일 경과, 잔여 {remaining_days}/{SUBSCRIPTION_DAYS}일)"
+    )
 
 
 @tool

@@ -11,7 +11,8 @@
       "vehicle_type": "임직원",
       "owner_name": "서태윤",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "27허2679",
@@ -22,7 +23,8 @@
       "vehicle_type": "임직원",
       "owner_name": "홍하은",
       "car_model": "투싼",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "37더9279",
@@ -33,7 +35,8 @@
       "vehicle_type": "임직원",
       "owner_name": "윤도윤",
       "car_model": "그랜저",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "67부5557",
@@ -44,7 +47,8 @@
       "vehicle_type": "임직원",
       "owner_name": "장태윤",
       "car_model": "G80",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "37호6514",
@@ -55,7 +59,8 @@
       "vehicle_type": "임직원",
       "owner_name": "송지훈",
       "car_model": "QM6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "54수5333",
@@ -66,7 +71,8 @@
       "vehicle_type": "임직원",
       "owner_name": "황시우",
       "car_model": "EV6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "20모5803",
@@ -77,7 +83,8 @@
       "vehicle_type": "임직원",
       "owner_name": "홍민재",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "39호5741",
@@ -88,7 +95,8 @@
       "vehicle_type": "임직원",
       "owner_name": "오태윤",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "91어3664",
@@ -99,7 +107,8 @@
       "vehicle_type": "임직원",
       "owner_name": "정우진",
       "car_model": "스포티지",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "91거9751",
@@ -110,7 +119,8 @@
       "vehicle_type": "임직원",
       "owner_name": "전현우",
       "car_model": "그랜저",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "91하4598",
@@ -121,7 +131,8 @@
       "vehicle_type": "임직원",
       "owner_name": "안지훈",
       "car_model": "스타렉스",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "14서7572",
@@ -132,7 +143,8 @@
       "vehicle_type": "임직원",
       "owner_name": "한태윤",
       "car_model": "쏘나타",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "93도7482",
@@ -143,7 +155,8 @@
       "vehicle_type": "임직원",
       "owner_name": "장소율",
       "car_model": "아반떼",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "81모5304",
@@ -154,7 +167,8 @@
       "vehicle_type": "임직원",
       "owner_name": "신시우",
       "car_model": "티볼리",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "75도2489",
@@ -165,7 +179,8 @@
       "vehicle_type": "임직원",
       "owner_name": "권건우",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "18저7252",
@@ -176,7 +191,8 @@
       "vehicle_type": "임직원",
       "owner_name": "홍우진",
       "car_model": "쏘나타",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "11주2876",
@@ -187,7 +203,8 @@
       "vehicle_type": "임직원",
       "owner_name": "오도윤",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "30노1053",
@@ -198,7 +215,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강우진",
       "car_model": "QM6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "90머9317",
@@ -209,7 +227,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강건우",
       "car_model": "스포티지",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "77가6310",
@@ -220,7 +239,8 @@
       "vehicle_type": "임직원",
       "owner_name": "이예은",
       "car_model": "아반떼",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "17더2290",
@@ -231,7 +251,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강다은",
       "car_model": "EV6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "78호3060",
@@ -242,7 +263,8 @@
       "vehicle_type": "임직원",
       "owner_name": "박채원",
       "car_model": "그랜저",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "79호4295",
@@ -253,7 +275,8 @@
       "vehicle_type": "임직원",
       "owner_name": "정지우",
       "car_model": "QM6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "67라5061",
@@ -264,7 +287,8 @@
       "vehicle_type": "임직원",
       "owner_name": "김태윤",
       "car_model": "레이",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "38가2163",
@@ -275,7 +299,8 @@
       "vehicle_type": "임직원",
       "owner_name": "정건우",
       "car_model": "아이오닉5",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "52다9423",
@@ -286,7 +311,8 @@
       "vehicle_type": "임직원",
       "owner_name": "조서연",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "79마8744",
@@ -297,7 +323,8 @@
       "vehicle_type": "임직원",
       "owner_name": "권준서",
       "car_model": "팰리세이드",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "94고6804",
@@ -308,7 +335,8 @@
       "vehicle_type": "임직원",
       "owner_name": "서도윤",
       "car_model": "티볼리",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "61허6559",
@@ -319,7 +347,8 @@
       "vehicle_type": "임직원",
       "owner_name": "황서연",
       "car_model": "K7",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "64거5563",
@@ -330,7 +359,8 @@
       "vehicle_type": "임직원",
       "owner_name": "홍도윤",
       "car_model": "QM6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "93모1241",
@@ -341,7 +371,8 @@
       "vehicle_type": "임직원",
       "owner_name": "신예은",
       "car_model": "K5",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "72도4502",
@@ -352,7 +383,8 @@
       "vehicle_type": "임직원",
       "owner_name": "최도윤",
       "car_model": "모닝",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "43노5673",
@@ -363,7 +395,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강하은",
       "car_model": "EV6",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "17부9883",
@@ -374,7 +407,8 @@
       "vehicle_type": "임직원",
       "owner_name": "정시우",
       "car_model": "팰리세이드",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "77거1931",
@@ -385,7 +419,8 @@
       "vehicle_type": "임직원",
       "owner_name": "한다은",
       "car_model": "투싼",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "40저2964",
@@ -396,7 +431,8 @@
       "vehicle_type": "임직원",
       "owner_name": "장예은",
       "car_model": "티볼리",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "20고9565",
@@ -407,7 +443,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강지훈",
       "car_model": "G80",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "60마5915",
@@ -418,7 +455,8 @@
       "vehicle_type": "임직원",
       "owner_name": "임민준",
       "car_model": "셀토스",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "82라2200",
@@ -429,7 +467,8 @@
       "vehicle_type": "정기권",
       "owner_name": "이현우",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": "2026-08-15"
     },
     {
       "vehicle_number": "41어5669",
@@ -440,7 +479,8 @@
       "vehicle_type": "임직원",
       "owner_name": "서채원",
       "car_model": "티볼리",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "80머2697",
@@ -451,7 +491,8 @@
       "vehicle_type": "임직원",
       "owner_name": "강서연",
       "car_model": "티볼리",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "80마5462",
@@ -462,7 +503,8 @@
       "vehicle_type": "임직원",
       "owner_name": "서우진",
       "car_model": "투싼",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "72러1832",
@@ -473,7 +515,8 @@
       "vehicle_type": "임직원",
       "owner_name": "임수아",
       "car_model": "모닝",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "26우5291",
@@ -484,7 +527,8 @@
       "vehicle_type": "정기권",
       "owner_name": "최현우",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": "2026-08-20"
     },
     {
       "vehicle_number": "19하3442",
@@ -495,7 +539,8 @@
       "vehicle_type": "임직원",
       "owner_name": "윤태윤",
       "car_model": "모닝",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "26나6050",
@@ -506,7 +551,8 @@
       "vehicle_type": "임직원",
       "owner_name": "권지훈",
       "car_model": "포터",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "97더2684",
@@ -517,7 +563,8 @@
       "vehicle_type": "임직원",
       "owner_name": "신준서",
       "car_model": "그랜저",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "32고1406",
@@ -528,7 +575,8 @@
       "vehicle_type": "임직원",
       "owner_name": "안지우",
       "car_model": "레이",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "99라7267",
@@ -539,7 +587,8 @@
       "vehicle_type": "임직원",
       "owner_name": "황소율",
       "car_model": "K7",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "49더4652",
@@ -550,7 +599,8 @@
       "vehicle_type": "임직원",
       "owner_name": "장채원",
       "car_model": "모닝",
-      "company": null
+      "company": null,
+      "subscription_start": null
     },
     {
       "vehicle_number": "51마7468",
@@ -561,7 +611,8 @@
       "vehicle_type": "방문객",
       "owner_name": "신아윤",
       "car_model": "스포티지",
-      "company": "동양기획"
+      "company": "동양기획",
+      "subscription_start": null
     },
     {
       "vehicle_number": "78라6991",
@@ -572,7 +623,8 @@
       "vehicle_type": "방문객",
       "owner_name": "임태윤",
       "car_model": "QM6",
-      "company": "한빛전자"
+      "company": "한빛전자",
+      "subscription_start": null
     },
     {
       "vehicle_number": "14다8104",
@@ -583,7 +635,8 @@
       "vehicle_type": "방문객",
       "owner_name": "조태윤",
       "car_model": "레이",
-      "company": "미래시스템"
+      "company": "미래시스템",
+      "subscription_start": null
     },
     {
       "vehicle_number": "80고1968",
@@ -594,7 +647,8 @@
       "vehicle_type": "방문객",
       "owner_name": "조유진",
       "car_model": "아반떼",
-      "company": "금강산업"
+      "company": "금강산업",
+      "subscription_start": null
     },
     {
       "vehicle_number": "83부7499",
@@ -605,7 +659,8 @@
       "vehicle_type": "방문객",
       "owner_name": "오지우",
       "car_model": "싼타페",
-      "company": "서울테크"
+      "company": "서울테크",
+      "subscription_start": null
     },
     {
       "vehicle_number": "47고3363",
@@ -616,7 +671,8 @@
       "vehicle_type": "방문객",
       "owner_name": "강준서",
       "car_model": "EV6",
-      "company": "한강엔지니어링"
+      "company": "한강엔지니어링",
+      "subscription_start": null
     },
     {
       "vehicle_number": "81주3961",
@@ -627,7 +683,8 @@
       "vehicle_type": "방문객",
       "owner_name": "윤채원",
       "car_model": "티볼리",
-      "company": "청년소프트"
+      "company": "청년소프트",
+      "subscription_start": null
     },
     {
       "vehicle_number": "57라9974",
@@ -638,7 +695,8 @@
       "vehicle_type": "방문객",
       "owner_name": "서민준",
       "car_model": "K5",
-      "company": "대성물류"
+      "company": "대성물류",
+      "subscription_start": null
     },
     {
       "vehicle_number": "10나1234",
@@ -649,7 +707,8 @@
       "vehicle_type": "임직원",
       "owner_name": "안소율",
       "car_model": "싼타페",
-      "company": null
+      "company": null,
+      "subscription_start": null
     }
   ]
 }
