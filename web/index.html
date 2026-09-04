@@ -27,12 +27,42 @@
     overflow-y: auto;
     background: #fafafa;
   }
-  #menu h1 {
+  /* 접혔을 때는 아예 안 그려서 채팅 영역이 넓어지게 한다 */
+  #app.menu-hidden #menu {
+    display: none;
+  }
+  #menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 8px 12px 16px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  #menu-head h1 {
     font-size: 15px;
     font-weight: 700;
     margin: 0;
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid #e5e5e5;
+  }
+  #menuToggle {
+    background: none;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #444;
+  }
+  #menuToggle:hover {
+    background: #e8e8ec;
+  }
+  /* 메뉴가 접혔을 때 채팅 헤더 쪽에 다시 펼치는 버튼 */
+  #menuShowBtn {
+    display: none;
+    margin-right: 10px;
+  }
+  #app.menu-hidden #menuShowBtn {
+    display: inline-block;
   }
   .menu-group {
     padding: 12px 8px;
@@ -71,6 +101,8 @@
     flex-direction: column;
   }
   header {
+    display: flex;
+    align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid #e5e5e5;
     font-weight: 600;
@@ -165,7 +197,10 @@
 <body>
 <div id="app">
   <nav id="menu">
-    <h1>무엇을 물어볼 수 있나요?</h1>
+    <div id="menu-head">
+      <h1>무엇을 물어볼 수 있나요?</h1>
+      <button id="menuToggle" type="button" title="메뉴 접기">◀</button>
+    </div>
     <!-- 각 항목의 data-q 값을 클릭하면 그 질문을 그대로 물어본다. 카테고리는 감독자가 위임하는
          하위 에이전트(조회/요금/관리자) 구성과 그대로 맞춰뒀다 -->
     <div class="menu-group">
@@ -195,7 +230,10 @@
   </nav>
 
   <div id="chat">
-    <header>주차장 담당자 Agent</header>
+    <header>
+      <button id="menuShowBtn" type="button" title="메뉴 펼치기">☰</button>
+      주차장 담당자 Agent
+    </header>
     <div id="messages"></div>
     <form id="form">
       <input id="input" type="text" placeholder="예: 지금 주차 가능한 자리가 몇 개야?" autocomplete="off" />
@@ -205,11 +243,30 @@
 </div>
 
 <script>
+const appEl = document.getElementById('app');
 const messagesEl = document.getElementById('messages');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
 const menu = document.getElementById('menu');
+const menuToggle = document.getElementById('menuToggle');
+const menuShowBtn = document.getElementById('menuShowBtn');
+
+// 메뉴 접힘 상태는 이 브라우저에서만 기억하면 되는 사소한 취향이라 localStorage에 둔다.
+// 개인정보나 공유 데이터가 아니라서 못 읽어도(시크릿 모드 등) 그냥 펼친 채로 시작하면 그만이다.
+function setMenuHidden(hidden) {
+  appEl.classList.toggle('menu-hidden', hidden);
+  try {
+    localStorage.setItem('menuHidden', hidden ? '1' : '0');
+  } catch (_) {}
+}
+
+try {
+  if (localStorage.getItem('menuHidden') === '1') setMenuHidden(true);
+} catch (_) {}
+
+menuToggle.addEventListener('click', () => setMenuHidden(true));
+menuShowBtn.addEventListener('click', () => setMenuHidden(false));
 
 // 말풍선 하나를 만들어 붙인다. 이 시점엔 아직 답이 없을 수도 있어(생각 중...) 평범한 텍스트로만 채운다.
 function addMessage(text, role) {
